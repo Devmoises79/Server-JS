@@ -1,24 +1,84 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 400px; 
+            margin: 50px auto; 
+            padding: 20px; 
+        }
+        .error-box {
+            color: #721c24; 
+            background-color: #f8d7da; 
+            border: 1px solid #f5c6cb;
+            padding: 10px; 
+            border-radius: 4px; 
+            margin-bottom: 15px;
+            display: none; /* Hidden by default */
+        }
+        input, button { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 8px 0; 
+            box-sizing: border-box; 
+        }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+            padding: 12px;
+        }
+        button:hover { 
+            background-color: #0056b3; 
+        }
+    </style>
 </head>
 <body>
     <h1>Login</h1>
     
+    <!-- ERROR MESSAGE - Only shows if backend sends ?error=1 -->
+    <div id="errorBox" class="error-box">
+        <strong>Error:</strong> Invalid username or password
+    </div>
+    
+    <!-- FORM THAT SENDS TO BACKEND -->
     <form action="/login/submit" method="POST">
-        <div>
-            <label for="username">User:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <button type="submit">Entrar</button>
-        </div>
+        <label><strong>Username:</strong></label>
+        <input type="text" name="username" id="username" required>
+        
+        <label><strong>Password:</strong></label>
+        <input type="password" name="password" id="password" required>
+        
+        <button type="submit">Login</button>
     </form>
+    
+    <p><strong>Test users:</strong></p>
+    <p>admin / 123</p>
+    <p>user / 456</p>
+    
+    <script>
+        // SIMPLE CODE: Show error if ?error=1 is in URL
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check current URL
+            const url = window.location.href;
+            
+            // If URL has ?error=1, show error message
+            if (url.includes('?error=1')) {
+                console.log('Showing error message (login failed)');
+                document.getElementById('errorBox').style.display = 'block';
+                
+                // Focus on username field
+                document.getElementById('username').focus();
+                
+                // Clean URL (remove ?error=1)
+                window.history.replaceState({}, '', '/login');
+            }
+        });
+    </script>
 </body>
 </html>
