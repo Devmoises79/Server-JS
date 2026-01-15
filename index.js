@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 // Generate secret key
 const secretKey = crypto.randomBytes(32).toString('hex');
-console.log('🔑 Secret key:', secretKey);
+console.log(' Secret key:', secretKey);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -24,7 +24,7 @@ app.use(session({
 }));
 
 const basePath = path.join(__dirname, 'templates');
-console.log('📁 Templates path:', basePath);
+console.log(' Templates path:', basePath);
 
 // VALID USERS - ONLY THESE CAN LOGIN
 const validUsers = {
@@ -61,14 +61,14 @@ app.get('/login', (req, res) => {
     
     // If user is already logged in, redirect to dashboard
     if (req.session.isAuthenticated) {
-        console.log('↪️ Already authenticated, redirecting to dashboard');
+        console.log('↪ Already authenticated, redirecting to dashboard');
         return res.redirect('/');
     }
     
     // Serve the login.html file
     res.sendFile(`${basePath}/login.html`, (err) => {
         if (err) {
-            console.error('❌ Error loading login.html:', err.message);
+            console.error(' Error loading login.html:', err.message);
             res.status(404).send('Login page not found');
         }
     });
@@ -77,7 +77,7 @@ app.get('/login', (req, res) => {
 // Process login form - REAL VALIDATION HERE
 app.post('/login/submit', (req, res) => {
     const { username, password } = req.body;
-    console.log(`🔐 Login attempt: username="${username}"`);
+    console.log(` Login attempt: username="${username}"`);
     
     // REAL VALIDATION: Check if user exists AND password matches
     if (validUsers[username] && validUsers[username] === password) {
@@ -90,8 +90,8 @@ app.post('/login/submit', (req, res) => {
         return res.redirect('/');
     } else {
         // INVALID CREDENTIALS - ANY OTHER COMBINATION FAILS
-        console.log(`❌ FAILED login: ${username}`);
-        console.log(`💡 Valid users: ${Object.keys(validUsers).join(', ')}`);
+        console.log(` FAILED login: ${username}`);
+        console.log(` Valid users: ${Object.keys(validUsers).join(', ')}`);
         
         // Redirect back to login WITH ERROR PARAMETER
         return res.redirect('/login?error=1');
@@ -108,10 +108,10 @@ app.get('/logout', (req, res) => {
 
 // Dashboard route (protected - requires authentication)
 app.get('/', (req, res) => {
-    console.log('🏠 Accessing dashboard');
+    console.log(' Accessing dashboard');
     res.sendFile(`${basePath}/dashboard.html`, (err) => {
         if (err) {
-            console.error('❌ Error loading dashboard:', err.message);
+            console.error(' Error loading dashboard:', err.message);
             res.status(404).send('Dashboard not found');
         }
     });
@@ -119,10 +119,10 @@ app.get('/', (req, res) => {
 
 // Add user form (protected)
 app.get('/users/add', (req, res) => {
-    console.log('📋 Accessing user form');
+    console.log(' Accessing user form');
     res.sendFile(`${basePath}/users.html`, (err) => {
         if (err) {
-            console.error('❌ Error loading user form:', err.message);
+            console.error(' Error loading user form:', err.message);
             res.status(404).send('User form not found');
         }
     });
@@ -131,7 +131,7 @@ app.get('/users/add', (req, res) => {
 // Save user data (protected)
 app.post('/users/save', (req, res) => {
     const { name, age } = req.body;
-    console.log(`💾 Saving user: ${name}, ${age} years old`);
+    console.log(` Saving user: ${name}, ${age} years old`);
     res.redirect('/users/add');
 });
 
@@ -141,7 +141,7 @@ app.get('/users/:id', (req, res) => {
     console.log(`👤 Viewing user ID: ${id}`);
     res.sendFile(`${basePath}/user-details.html`, (err) => {
         if (err) {
-            console.error('❌ Error loading user details:', err.message);
+            console.error(' Error loading user details:', err.message);
             res.status(404).send('User details page not found');
         }
     });
@@ -150,25 +150,25 @@ app.get('/users/:id', (req, res) => {
 // File test route
 app.get('/test-file', (req, res) => {
     const filePath = `${basePath}/login.html`;
-    console.log('🧪 Testing file path:', filePath);
+    console.log(' Testing file path:', filePath);
     
     const fs = require('fs');
     if (fs.existsSync(filePath)) {
-        console.log('✅ File exists!');
+        console.log(' File exists!');
         res.send('File exists at path: ' + filePath);
     } else {
-        console.log('❌ File does NOT exist!');
+        console.log(' File does NOT exist!');
         res.send('File does NOT exist at path: ' + filePath);
     }
 });
 
 // Start server
 app.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-    console.log(`🔗 Access: http://localhost:${port}`);
-    console.log(`🔗 Login page: http://localhost:${port}/login`);
-    console.log('⚠️  Test credentials:');
-    console.log('   ✅ Valid: admin / 123');
-    console.log('   ✅ Valid: user / 456');
-    console.log('   ❌ Invalid: any other combination');
+    console.log(` Server running on port ${port}`);
+    console.log(` Access: http://localhost:${port}`);
+    console.log(` Login page: http://localhost:${port}/login`);
+    console.log('  Test credentials:');
+    console.log('    Valid: admin / 123');
+    console.log('    Valid: user / 456');
+    console.log('    Invalid: any other combination');
 });
