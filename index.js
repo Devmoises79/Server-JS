@@ -6,81 +6,81 @@ const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
 
-// Gerar chave secreta
+// Generate secret key
 const secretKey = crypto.randomBytes(32).toString('hex');
-console.log('🔑 Chave secreta:', secretKey);
+console.log('🔑 Secret key:', secretKey);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Configuração de sessão CORRIGIDA
+// Session configuration CORRECTED
 app.use(session({
     secret: secretKey,
     resave: false,
-    saveUninitialized: false, // false é mais seguro
+    saveUninitialized: false, // false is more secure
     cookie: { 
-        maxAge: 15 * 60 * 1000 // 15 minutos
+        maxAge: 15 * 60 * 1000 // 15 minutes
     }
 }));
 
 const basePath = path.join(__dirname, 'templates');
 
-// VERIFICAÇÃO: Mostra o caminho que está sendo usado
-console.log('📁 Caminho dos templates:', basePath);
+// VERIFICATION: Shows the path being used
+console.log(' Templates path:', basePath);
 
-// Dados de usuários
+// Users data
 const users = [
-    { id: 1, username: 'admin', password: '123', name: 'Administrador' },
-    { id: 2, username: 'usuario', password: '456', name: 'Usuário Teste' }
+    { id: 1, username: 'admin', password: '123', name: 'Administrator' },
+    { id: 2, username: 'user', password: '456', name: 'Test User' }
 ];
 
-// Middleware de autenticação SIMPLIFICADO
+// Authentication middleware SIMPLIFIED
 const checkAuth = (req, res, next) => {
-    console.log(`🔍 Verificando rota: ${req.path}`);
+    console.log(` Checking route: ${req.path}`);
     
-    // Rotas públicas
+    // Public routes
     const publicRoutes = ['/login', '/login/submit', '/logout'];
     
     if (publicRoutes.includes(req.path)) {
-        console.log('✅ Rota pública, acesso permitido');
+        console.log(' Public route, access allowed');
         return next();
     }
     
-    // Verifica autenticação
+    // Check authentication
     if (req.session && req.session.isAuthenticated) {
-        console.log(`✅ Usuário autenticado: ${req.session.username}`);
+        console.log(` Authenticated user: ${req.session.username}`);
         return next();
     }
     
-    console.log('❌ Usuário não autenticado, redirecionando para login');
+    console.log(' User not authenticated, redirecting to login');
     res.redirect('/login');
 };
 
-// Aplica middleware em TODAS as rotas
+// Apply middleware to ALL routes
 app.use(checkAuth);
 
-// Rota de login
+// Login route
 app.get('/login', (req, res) => {
-    console.log('📄 Servindo login.html');
+    console.log(' Serving login.html');
     
-    // Se já logado, redireciona
+    // If already logged in, redirect
     if (req.session.isAuthenticated) {
-        console.log('🔄 Já autenticado, redirecionando para /');
+        console.log(' Already authenticated, redirecting to /');
         return res.redirect('/');
     }
     
-    // Tenta enviar o arquivo
+    // Try to send the file
     res.sendFile(`${basePath}/login.html`, (err) => {
         if (err) {
-            console.error('❌ ERRO ao enviar login.html:', err.message);
-            res.status(404).send('Arquivo login.html não encontrado');
+            console.error(' ERROR sending login.html:', err.message);
+            res.status(404).send('login.html file not found');
         }
     });
 });
 
-// Processar login
+// Process login
 app.post('/login/submit', (req, res) => {
-    console.log('🔐 Tentativa de login:', req.body);
+    console.log(' Login attempt:', req.body);
     
     const { username, password } = req.body;
     const user = users.find(u => u.username === username && u.password === password);
@@ -91,17 +91,17 @@ app.post('/login/submit', (req, res) => {
         req.session.userId = user.id;
         req.session.userName = user.name;
         
-        console.log(`✅ Login bem-sucedido: ${user.name}`);
+        console.log(` Login successful: ${user.name}`);
         res.redirect('/');
     } else {
-        console.log('❌ Login falhou');
+        console.log(' Login failed');
         res.redirect('/login');
     }
 });
 
 // Logout
 app.get('/logout', (req, res) => {
-    console.log('👋 Logout solicitado');
+    console.log(' Logout requested');
     req.session.destroy(() => {
         res.redirect('/login');
     });
@@ -109,71 +109,71 @@ app.get('/logout', (req, res) => {
 
 // Dashboard
 app.get('/', (req, res) => {
-    console.log('🏠 Acessando dashboard');
+    console.log(' Accessing dashboard');
     res.sendFile(`${basePath}/dashboard.html`, (err) => {
         if (err) {
-            console.error('❌ ERRO dashboard.html:', err.message);
-            res.status(404).send('Dashboard não encontrado');
+            console.error(' ERROR dashboard.html:', err.message);
+            res.status(404).send('Dashboard not found');
         }
     });
 });
 
-// Adicionar usuário
+// Add user
 app.get('/users/add', (req, res) => {
-    console.log('📝 Acessando formulário de usuário');
+    console.log(' Accessing user form');
     res.sendFile(`${basePath}/users.html`, (err) => {
         if (err) {
-            console.error('❌ ERRO users.html:', err.message);
-            res.status(404).send('Formulário não encontrado');
+            console.error(' ERROR users.html:', err.message);
+            res.status(404).send('Form not found');
         }
     });
 });
 
 app.post('/users/save', (req, res) => {
-    console.log('💾 Salvando usuário:', req.body);
+    console.log(' Saving user:', req.body);
     const { name, age } = req.body;
     
-    console.log(`👤 Nome: ${name}, Idade: ${age}`);
+    console.log(` Name: ${name}, Age: ${age}`);
     
     if (age >= 18) {
-        console.log('✅ Maior de idade');
+        console.log(' Adult');
     } else {
-        console.log(`⚠️ Menor de idade: ${age} anos`);
+        console.log(` Minor: ${age} years old`);
     }
     
     res.redirect('/users/add');
 });
 
-// Detalhes do usuário
+// User details
 app.get('/users/:id', (req, res) => {
     const id = req.params.id;
-    console.log(`🔍 Buscando usuário ID: ${id}`);
+    console.log(` Searching for user ID: ${id}`);
     res.sendFile(`${basePath}/user-details.html`, (err) => {
         if (err) {
-            console.error('❌ ERRO user-details.html:', err.message);
-            res.status(404).send('Página de detalhes não encontrada');
+            console.error(' ERROR user-details.html:', err.message);
+            res.status(404).send('Details page not found');
         }
     });
 });
 
-// Rota para teste de arquivos
+// Route for file testing
 app.get('/test-file', (req, res) => {
     const filePath = `${basePath}/login.html`;
-    console.log('🧪 Testando caminho do arquivo:', filePath);
+    console.log(' Testing file path:', filePath);
     
     const fs = require('fs');
     if (fs.existsSync(filePath)) {
-        console.log('✅ Arquivo existe!');
-        res.send('Arquivo existe no caminho: ' + filePath);
+        console.log(' File exists!');
+        res.send('File exists at path: ' + filePath);
     } else {
-        console.log('❌ Arquivo NÃO existe!');
-        res.send('Arquivo NÃO existe no caminho: ' + filePath);
+        console.log(' File does NOT exist!');
+        res.send('File does NOT exist at path: ' + filePath);
     }
 });
 
 app.listen(port, () => {
-    console.log(`🚀 Servidor rodando na porta ${port}`);
-    console.log(`🌐 Acesse: http://localhost:${port}`);
-    console.log(`🔗 Teste de arquivo: http://localhost:${port}/test-file`);
+    console.log(` Server running on port ${port}`);
+    console.log(` Access: http://localhost:${port}`);
+    console.log(`🔗 File test: http://localhost:${port}/test-file`);
     console.log(`🔗 Login: http://localhost:${port}/login`);
 });
